@@ -52,7 +52,7 @@ export function FigmaBoundingBox({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0.85] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.15 }}
               style={{ top: y, borderColor: snapColor }}
               className="fixed left-0 right-0 border-t border-dashed z-25"
             />
@@ -61,7 +61,7 @@ export function FigmaBoundingBox({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0.85] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.15 }}
               style={{ top: y + height, borderColor: snapColor }}
               className="fixed left-0 right-0 border-t border-dashed z-25"
             />
@@ -70,7 +70,7 @@ export function FigmaBoundingBox({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0.85] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.15 }}
               style={{ left: x, borderColor: snapColor }}
               className="fixed top-0 bottom-0 border-l border-dashed z-25"
             />
@@ -79,7 +79,7 @@ export function FigmaBoundingBox({
               initial={{ opacity: 0 }}
               animate={{ opacity: [0, 1, 0.85] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.15 }}
               style={{ left: x + width, borderColor: snapColor }}
               className="fixed top-0 bottom-0 border-l border-dashed z-25"
             />
@@ -89,18 +89,23 @@ export function FigmaBoundingBox({
 
       {/* 2. Bounding Box */}
       <motion.div
-        initial={false}
+        initial={{
+          x,
+          y,
+          width: Math.min(width, 100),
+          height: Math.min(height, 60),
+          opacity: 0,
+        }}
         animate={{
           x,
           y,
           width,
           height,
+          opacity: 1,
         }}
         transition={{
-          type: "spring",
-          damping: 28,
-          stiffness: 260,
-          mass: 0.5,
+          duration: 0.7,
+          ease: [0.16, 1, 0.3, 1],
         }}
         style={{
           borderColor: color,

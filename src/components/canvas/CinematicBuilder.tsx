@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AgentFleet, AgentInfo, INITIAL_AGENTS } from "./AgentFleet";
 import { FigmaBoundingBox, FigmaBoundingBoxProps } from "./FigmaBoundingBox";
-import { RefreshCw, Play, CheckCircle2, Sliders, Zap } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 export type CinematicStep = 0 | 1 | 2 | 3 | 4 | 5;
 
@@ -22,9 +22,13 @@ export function CinematicBuilder({ onStepChange, onComplete }: CinematicBuilderP
   const [replayKey, setReplayKey] = useState(0);
   const [metricNum, setMetricNum] = useState(0);
 
-  const isAutoScrollingRef = useRef(false);
+  // Store callbacks in refs to avoid re-triggering the timer loop on parent state updates
+  const onStepChangeRef = useRef(onStepChange);
+  onStepChangeRef.current = onStepChange;
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
-  // Resize handler
+  // Window resize handler
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     handleResize();
@@ -32,34 +36,30 @@ export function CinematicBuilder({ onStepChange, onComplete }: CinematicBuilderP
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Smooth scroll helper
-  const scrollToSection = useCallback((elementId: string | number) => {
-    if (typeof elementId === "number") {
-      window.scrollTo({ top: elementId, behavior: "smooth" });
-      return;
-    }
-    const el = document.getElementById(elementId);
-    if (el) {
-      const y = el.getBoundingClientRect().top + window.scrollY - 80;
-      window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
-    }
-  }, []);
+  // MASTER TIMELINE ENGINE
+  useEffect(() => {
+    const timers: NodeJS.Timeout[] = [];
+    const intervals: NodeJS.Timeout[] = [];
 
-  // Main Cinematic Auto-Builder Timeline Orchestrator
-  const runCinematicSequence = useCallback(() => {
+    const width = typeof window !== "undefined" ? window.innerWidth : 1440;
+    const centerX = width / 2;
+
+    // Reset to Step 0 immediately
     setStep(0);
     setIsStandby(false);
-    onStepChange?.(0);
-    isAutoScrollingRef.current = true;
+    setMetricNum(0);
+    onStepChangeRef.current?.(0);
 
-    const centerX = windowWidth / 2;
+    // Initial smooth scroll to Top
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
-    // STEP 0: HERO BUILD (0s ~ 1.8s)
-    scrollToSection(0);
+    // ==========================================
+    // STEP 0: HERO BUILD (0.0s ~ 1.8s)
+    // ==========================================
     setActiveBox({
       x: Math.max(40, centerX - 560),
       y: 110,
-      width: Math.min(windowWidth - 80, 1120),
+      width: Math.min(width - 80, 1120),
       height: 480,
       color: "#2563eb",
       agentTag: "AGENT 01",
@@ -84,172 +84,192 @@ export function CinematicBuilder({ onStepChange, onComplete }: CinematicBuilderP
     ]);
 
     // Flash Snap Guides for Hero at 0.8s
-    const timerHeroSnap = setTimeout(() => {
-      setActiveBox((prev) => (prev ? { ...prev, showSnapGuides: true, isDashed: false } : null));
-    }, 800);
+    timers.push(
+      setTimeout(() => {
+        setActiveBox((prev) => (prev ? { ...prev, showSnapGuides: true, isDashed: false } : null));
+      }, 800)
+    );
 
+    // ==========================================
     // STEP 1: PHILOSOPHY BUILD (1.8s ~ 3.5s)
-    const timerPhilosophy = setTimeout(() => {
-      setStep(1);
-      onStepChange?.(1);
-      scrollToSection("philosophy");
+    // ==========================================
+    timers.push(
+      setTimeout(() => {
+        setStep(1);
+        onStepChangeRef.current?.(1);
 
-      setActiveBox({
-        x: Math.max(40, centerX - 560),
-        y: 200,
-        width: Math.min(windowWidth - 80, 1120),
-        height: 380,
-        color: "#ec4899",
-        agentTag: "AGENT 02",
-        label: "PHILOSOPHY_3_COLUMNS",
-        dimensionText: "Grid: 3x1  Auto-Layout",
-        showSnapGuides: true,
-        isDashed: true,
-        visible: true,
-      });
+        // Smooth scroll to Philosophy
+        document.getElementById("philosophy")?.scrollIntoView({ behavior: "smooth" });
 
-      setAgents((prev) =>
-        prev.map((a) => {
-          if (a.id === "agent-02") return { ...a, x: centerX - 360, y: 260, visible: true, actionTooltip: "01. Empathy Wireframe" };
-          if (a.id === "agent-06") return { ...a, x: centerX, y: 260, visible: true, actionTooltip: "02. Attitude Architecture" };
-          if (a.id === "agent-08") return { ...a, x: centerX + 360, y: 260, visible: true, actionTooltip: "03. First-Principles Verified" };
-          if (a.id === "agent-01") return { ...a, x: centerX - 480, y: 160, visible: true, actionTooltip: "Snapping Section Bounds" };
-          return { ...a, visible: true };
-        })
-      );
-    }, 1800);
+        setActiveBox({
+          x: Math.max(40, centerX - 560),
+          y: 200,
+          width: Math.min(width - 80, 1120),
+          height: 380,
+          color: "#ec4899",
+          agentTag: "AGENT 02",
+          label: "PHILOSOPHY_3_COLUMNS",
+          dimensionText: "Grid: 3x1 Auto-Layout",
+          showSnapGuides: true,
+          isDashed: true,
+          visible: true,
+        });
 
-    // STEP 2: PROJECTS BUILD & METRIC INJECTION (3.5s ~ 5.4s)
-    const timerProjects = setTimeout(() => {
-      setStep(2);
-      onStepChange?.(2);
-      scrollToSection("projects");
+        setAgents((prev) =>
+          prev.map((a) => {
+            if (a.id === "agent-02") return { ...a, x: centerX - 360, y: 260, visible: true, actionTooltip: "01. Empathy Wireframe" };
+            if (a.id === "agent-06") return { ...a, x: centerX, y: 260, visible: true, actionTooltip: "02. Attitude Architecture" };
+            if (a.id === "agent-08") return { ...a, x: centerX + 360, y: 260, visible: true, actionTooltip: "03. First-Principles Verified" };
+            if (a.id === "agent-01") return { ...a, x: centerX - 480, y: 160, visible: true, actionTooltip: "Snapping Section Bounds" };
+            return { ...a, visible: true };
+          })
+        );
+      }, 1800)
+    );
 
-      setActiveBox({
-        x: Math.max(40, centerX - 560),
-        y: 180,
-        width: Math.min(windowWidth - 80, 1120),
-        height: 520,
-        color: "#f59e0b",
-        agentTag: "AGENT 05",
-        label: "CASE_STUDIES_INJECTION",
-        dimensionText: "W: 1120px  H: 520px  Snap: 0px",
-        showSnapGuides: true,
-        isDashed: false,
-        visible: true,
-      });
+    // ==========================================
+    // STEP 2: PROJECTS & METRIC INJECTION (3.5s ~ 5.5s)
+    // ==========================================
+    timers.push(
+      setTimeout(() => {
+        setStep(2);
+        onStepChangeRef.current?.(2);
 
-      // Count up metric
-      let count = 0;
-      const countInt = setInterval(() => {
-        count += 25;
-        if (count >= 150) {
-          count = 150;
-          clearInterval(countInt);
-        }
-        setMetricNum(count);
-      }, 50);
+        // Smooth scroll to Projects
+        document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
 
-      setAgents((prev) =>
-        prev.map((a) => {
-          if (a.id === "agent-05") return { ...a, x: centerX - 280, y: 320, visible: true, actionTooltip: "Injecting +150% Revenue KPI" };
-          if (a.id === "agent-06") return { ...a, x: centerX + 120, y: 320, visible: true, actionTooltip: "Cost -28% Algorithm Locked" };
-          if (a.id === "agent-07") return { ...a, x: centerX + 400, y: 320, visible: true, actionTooltip: "50k DB Migration Verified" };
-          if (a.id === "agent-09") return { ...a, x: centerX - 80, y: 440, visible: true, actionTooltip: "SLA 99.2% QA Passed ✓" };
-          return { ...a, visible: true };
-        })
-      );
-    }, 3500);
+        setActiveBox({
+          x: Math.max(40, centerX - 560),
+          y: 180,
+          width: Math.min(width - 80, 1120),
+          height: 520,
+          color: "#f59e0b",
+          agentTag: "AGENT 05",
+          label: "CASE_STUDIES_INJECTION",
+          dimensionText: "W: 1120px  H: 520px  Snap: 0px",
+          showSnapGuides: true,
+          isDashed: false,
+          visible: true,
+        });
 
-    // STEP 3: CAPABILITIES & TIMELINE (5.4s ~ 6.9s)
-    const timerCapabilities = setTimeout(() => {
-      setStep(3);
-      onStepChange?.(3);
-      scrollToSection("capabilities");
+        // Animate countup 0% -> +150%
+        let count = 0;
+        const countInterval = setInterval(() => {
+          count += 20;
+          if (count >= 150) {
+            count = 150;
+            clearInterval(countInterval);
+          }
+          setMetricNum(count);
+        }, 40);
+        intervals.push(countInterval);
 
-      setActiveBox({
-        x: Math.max(40, centerX - 560),
-        y: 200,
-        width: Math.min(windowWidth - 80, 1120),
-        height: 420,
-        color: "#10b981",
-        agentTag: "AGENT 03",
-        label: "CAPABILITIES_MATRIX",
-        dimensionText: "3x4 Domain Fluency Grid",
-        showSnapGuides: true,
-        isDashed: true,
-        visible: true,
-      });
+        setAgents((prev) =>
+          prev.map((a) => {
+            if (a.id === "agent-05") return { ...a, x: centerX - 280, y: 320, visible: true, actionTooltip: "Injecting +150% Revenue KPI" };
+            if (a.id === "agent-06") return { ...a, x: centerX + 120, y: 320, visible: true, actionTooltip: "Cost -28% Algorithm Locked" };
+            if (a.id === "agent-07") return { ...a, x: centerX + 400, y: 320, visible: true, actionTooltip: "50k DB Migration Verified" };
+            if (a.id === "agent-09") return { ...a, x: centerX - 80, y: 440, visible: true, actionTooltip: "SLA 99.2% QA Passed ✓" };
+            return { ...a, visible: true };
+          })
+        );
+      }, 3500)
+    );
 
-      setAgents((prev) =>
-        prev.map((a) => {
-          if (a.id === "agent-03") return { ...a, x: centerX - 320, y: 280, visible: true, actionTooltip: "Product Leadership Locked" };
-          if (a.id === "agent-08") return { ...a, x: centerX, y: 280, visible: true, actionTooltip: "ISMS-P Security Verified" };
-          if (a.id === "agent-07") return { ...a, x: centerX + 320, y: 280, visible: true, actionTooltip: "API Architecture Documented" };
-          if (a.id === "agent-10") return { ...a, x: centerX + 480, y: 460, visible: true, actionTooltip: "CI/CD Pipeline Ready" };
-          return { ...a, visible: true };
-        })
-      );
-    }, 5400);
+    // ==========================================
+    // STEP 3: CAPABILITIES & TIMELINE (5.5s ~ 7.0s)
+    // ==========================================
+    timers.push(
+      setTimeout(() => {
+        setStep(3);
+        onStepChangeRef.current?.(3);
 
-    // STEP 4: CONTACT SECTION BUILD (6.9s ~ 8.2s)
-    const timerContact = setTimeout(() => {
-      setStep(4);
-      onStepChange?.(4);
-      scrollToSection("contact");
+        // Smooth scroll to Capabilities
+        document.getElementById("capabilities")?.scrollIntoView({ behavior: "smooth" });
 
-      setActiveBox({
-        x: Math.max(40, centerX - 560),
-        y: 200,
-        width: Math.min(windowWidth - 80, 1120),
-        height: 440,
-        color: "#8b5cf6",
-        agentTag: "AGENT 04",
-        label: "CONTACT_CHANNELS_LOCKED",
-        dimensionText: "Email & Form Endpoints Active",
-        showSnapGuides: true,
-        isDashed: false,
-        visible: true,
-      });
+        setActiveBox({
+          x: Math.max(40, centerX - 560),
+          y: 200,
+          width: Math.min(width - 80, 1120),
+          height: 420,
+          color: "#10b981",
+          agentTag: "AGENT 03",
+          label: "CAPABILITIES_MATRIX",
+          dimensionText: "3x4 Domain Fluency Grid",
+          showSnapGuides: true,
+          isDashed: true,
+          visible: true,
+        });
 
-      setAgents((prev) =>
-        prev.map((a) => {
-          if (a.id === "agent-01") return { ...a, x: centerX - 240, y: 280, visible: true, actionTooltip: "byeongwooke@gmail.com Synced" };
-          if (a.id === "agent-09") return { ...a, x: centerX + 220, y: 340, visible: true, actionTooltip: "Form Handlers Ready" };
-          if (a.id === "agent-10") return { ...a, x: centerX, y: 460, visible: true, actionTooltip: "Final Polish 100%" };
-          return { ...a, visible: true };
-        })
-      );
-    }, 6900);
+        setAgents((prev) =>
+          prev.map((a) => {
+            if (a.id === "agent-03") return { ...a, x: centerX - 320, y: 280, visible: true, actionTooltip: "Product Leadership Locked" };
+            if (a.id === "agent-08") return { ...a, x: centerX, y: 280, visible: true, actionTooltip: "ISMS-P Security Verified" };
+            if (a.id === "agent-07") return { ...a, x: centerX + 320, y: 280, visible: true, actionTooltip: "API Architecture Documented" };
+            if (a.id === "agent-10") return { ...a, x: centerX + 480, y: 460, visible: true, actionTooltip: "CI/CD Pipeline Ready" };
+            return { ...a, visible: true };
+          })
+        );
+      }, 5500)
+    );
 
-    // STEP 5: GRAND FINALE - ALL AGENTS TO TOP-RIGHT STANDBY (8.2s+)
-    const timerFinale = setTimeout(() => {
-      setStep(5);
-      onStepChange?.(5);
-      setIsStandby(true);
-      setActiveBox(null);
-      isAutoScrollingRef.current = false;
-      onComplete?.();
+    // ==========================================
+    // STEP 4: CONTACT SECTION BUILD (7.0s ~ 8.5s)
+    // ==========================================
+    timers.push(
+      setTimeout(() => {
+        setStep(4);
+        onStepChangeRef.current?.(4);
 
-      // Smooth scroll back to top of the page so visitor can explore the masterpiece
-      scrollToSection(0);
-    }, 8200);
+        // Smooth scroll to Contact
+        document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+
+        setActiveBox({
+          x: Math.max(40, centerX - 560),
+          y: 200,
+          width: Math.min(width - 80, 1120),
+          height: 440,
+          color: "#8b5cf6",
+          agentTag: "AGENT 04",
+          label: "CONTACT_CHANNELS_LOCKED",
+          dimensionText: "Email & Form Endpoints Active",
+          showSnapGuides: true,
+          isDashed: false,
+          visible: true,
+        });
+
+        setAgents((prev) =>
+          prev.map((a) => {
+            if (a.id === "agent-01") return { ...a, x: centerX - 240, y: 280, visible: true, actionTooltip: "byeongwooke@gmail.com Synced" };
+            if (a.id === "agent-09") return { ...a, x: centerX + 220, y: 340, visible: true, actionTooltip: "Form Handlers Ready" };
+            if (a.id === "agent-10") return { ...a, x: centerX, y: 460, visible: true, actionTooltip: "Final Polish 100%" };
+            return { ...a, visible: true };
+          })
+        );
+      }, 7000)
+    );
+
+    // ==========================================
+    // STEP 5: GRAND FINALE (8.5s+)
+    // ==========================================
+    timers.push(
+      setTimeout(() => {
+        setStep(5);
+        setIsStandby(true);
+        setActiveBox(null);
+        onStepChangeRef.current?.(5);
+        onCompleteRef.current?.();
+
+        // Smooth scroll back to top of the page so visitor can explore the masterpiece
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }, 8500)
+    );
 
     return () => {
-      clearTimeout(timerHeroSnap);
-      clearTimeout(timerPhilosophy);
-      clearTimeout(timerProjects);
-      clearTimeout(timerCapabilities);
-      clearTimeout(timerContact);
-      clearTimeout(timerFinale);
+      timers.forEach(clearTimeout);
+      intervals.forEach(clearInterval);
     };
-  }, [windowWidth, scrollToSection, onStepChange, onComplete]);
-
-  // Start sequence on mount or when Replay is pressed
-  useEffect(() => {
-    const cancel = runCinematicSequence();
-    return () => cancel?.();
-  }, [replayKey, runCinematicSequence]);
+  }, [replayKey]);
 
   return (
     <div className="hidden md:block select-none pointer-events-none">
