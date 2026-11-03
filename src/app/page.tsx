@@ -12,6 +12,7 @@ import { Footer } from "@/components/Footer";
 import { ProjectModal } from "@/components/ProjectModal";
 import { ResumeModal } from "@/components/ResumeModal";
 import { Toast } from "@/components/Toast";
+import { MultiplayerCursors } from "@/components/MultiplayerCursors";
 import { ProjectItem } from "@/types/portfolio";
 
 export default function Home() {
@@ -30,6 +31,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] selection:bg-[#111111] selection:text-white">
+      {/* Figma-style Virtual Multiplayer Cursors & Visitor Tag */}
+      <MultiplayerCursors />
+
       {/* Sticky Navigation */}
       <Navbar onOpenResume={() => setResumeOpen(true)} />
 
