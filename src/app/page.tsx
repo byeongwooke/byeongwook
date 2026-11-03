@@ -13,6 +13,7 @@ import { ProjectModal } from "@/components/ProjectModal";
 import { ResumeModal } from "@/components/ResumeModal";
 import { Toast } from "@/components/Toast";
 import { MultiplayerCursors } from "@/components/MultiplayerCursors";
+import { LiveBuilderCanvas } from "@/components/canvas/LiveBuilderCanvas";
 import { ProjectItem } from "@/types/portfolio";
 
 export default function Home() {
@@ -31,6 +32,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] selection:bg-[#111111] selection:text-white">
+      {/* Figma Live Construction Engine: Agent Cursors, Selection Boxes & Snap Guides */}
+      <LiveBuilderCanvas />
+
       {/* Figma-style Virtual Multiplayer Cursors & Visitor Tag */}
       <MultiplayerCursors />
 
