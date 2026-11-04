@@ -6,10 +6,9 @@ import { PROFILE_DATA, QUICK_METRICS } from "@/data/portfolioData";
 
 interface HeroSectionProps {
   onOpenResume: () => void;
-  isMaterialized?: boolean;
 }
 
-export function HeroSection({ onOpenResume, isMaterialized = true }: HeroSectionProps) {
+export function HeroSection({ onOpenResume }: HeroSectionProps) {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -38,19 +37,11 @@ export function HeroSection({ onOpenResume, isMaterialized = true }: HeroSection
       {/* Subtle background grid pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none" />
 
-      <motion.div
-        initial={false}
-        animate={{
-          opacity: isMaterialized ? 1 : 0,
-          scale: isMaterialized ? 1 : 0.96,
-        }}
-        transition={{ duration: 0.55, ease: "easeOut" }}
-        className={`relative max-w-6xl mx-auto px-6 ${!isMaterialized ? "pointer-events-none" : ""}`}
-      >
+      <div className="relative max-w-6xl mx-auto px-6">
         <motion.div
           variants={containerVariants}
           initial="hidden"
-          animate={isMaterialized ? "visible" : "hidden"}
+          animate="visible"
           className="max-w-4xl"
         >
           {/* Identity Tag & Badge */}
@@ -129,31 +120,18 @@ export function HeroSection({ onOpenResume, isMaterialized = true }: HeroSection
           </motion.div>
         </motion.div>
 
-        {/* Quick Impact Metric Cards - Dropped by [Frontend] 도현 */}
+        {/* Quick Impact Metric Cards */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{
-            opacity: isMaterialized ? 1 : 0,
-            y: isMaterialized ? 0 : 30,
-          }}
-          transition={{ duration: 0.6, delay: isMaterialized ? 0.25 : 0 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-neutral-200"
         >
           {QUICK_METRICS.map((metric, index) => (
             <motion.div
               key={metric.id}
-              initial={{ opacity: 0, y: 24, scale: 0.95 }}
-              animate={{
-                opacity: isMaterialized ? 1 : 0,
-                y: isMaterialized ? 0 : 24,
-                scale: isMaterialized ? 1 : 0.95,
-              }}
-              transition={{
-                duration: 0.45,
-                delay: isMaterialized ? 0.35 + index * 0.15 : 0,
-                ease: "easeOut",
-              }}
               whileHover={{ y: -4 }}
+              transition={{ duration: 0.2 }}
               className="group p-6 rounded-2xl bg-white border border-[#e5e7eb] hover:border-neutral-900 hover:shadow-lg transition-all"
             >
               <div className="flex items-baseline justify-between mb-2">
@@ -178,7 +156,7 @@ export function HeroSection({ onOpenResume, isMaterialized = true }: HeroSection
             </motion.div>
           ))}
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }
