@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BlueprintCanvas } from "@/components/canvas/BlueprintCanvas";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { PhilosophySection } from "@/components/PhilosophySection";
@@ -28,39 +29,34 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] selection:bg-[#111111] selection:text-white relative">
-      {/* 1. Sticky Navigation */}
-      <Navbar onOpenResume={() => setResumeOpen(true)} />
+      {/* 1. Step 01: The Blueprint Canvas */}
+      <BlueprintCanvas />
 
-      {/* 2. Main Single Page Sections */}
-      <main className="relative z-10">
-        <HeroSection onOpenResume={() => setResumeOpen(true)} />
-        <PhilosophySection />
-        <ProjectsSection onSelectProject={(p) => setSelectedProject(p)} />
-        <CapabilitiesSection />
-        <ExperienceTimeline />
-        <ContactSection onCopyText={handleCopyText} />
-      </main>
-
-      {/* 3. Footer */}
-      <Footer />
-
-      {/* 4. Interactive Case Study Detail Modal */}
-      <ProjectModal
-        project={selectedProject}
-        onClose={() => setSelectedProject(null)}
-      />
-
-      {/* 5. Full Resume & CV Modal */}
-      <ResumeModal
-        isOpen={resumeOpen}
-        onClose={() => setResumeOpen(false)}
-      />
-
-      {/* 6. Toast Notification */}
-      <Toast
-        message={toastMessage}
-        onClose={() => setToastMessage(null)}
-      />
+      {/* 2. Standby Content (Kept waiting for subsequent build steps) */}
+      <div className="opacity-0 pointer-events-none select-none" aria-hidden="true">
+        <Navbar onOpenResume={() => setResumeOpen(true)} />
+        <main className="relative z-10">
+          <HeroSection onOpenResume={() => setResumeOpen(true)} />
+          <PhilosophySection />
+          <ProjectsSection onSelectProject={(p) => setSelectedProject(p)} />
+          <CapabilitiesSection />
+          <ExperienceTimeline />
+          <ContactSection onCopyText={handleCopyText} />
+        </main>
+        <Footer />
+        <ProjectModal
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
+        <ResumeModal
+          isOpen={resumeOpen}
+          onClose={() => setResumeOpen(false)}
+        />
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
+      </div>
     </div>
   );
 }
