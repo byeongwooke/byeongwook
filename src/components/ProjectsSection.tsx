@@ -17,9 +17,10 @@ import { ProjectItem } from "@/types/portfolio";
 
 interface ProjectsSectionProps {
   onSelectProject: (project: ProjectItem) => void;
+  cardsMaterialized?: boolean[];
 }
 
-export function ProjectsSection({ onSelectProject }: ProjectsSectionProps) {
+export function ProjectsSection({ onSelectProject, cardsMaterialized }: ProjectsSectionProps) {
   const [activeFilter, setActiveFilter] = useState<string>("all");
   const [activeTabPerProject, setActiveTabPerProject] = useState<{
     [projectId: string]: "problem" | "solution" | "impact" | "tech";
@@ -100,15 +101,21 @@ export function ProjectsSection({ onSelectProject }: ProjectsSectionProps) {
         <div className="space-y-12">
           {filteredProjects.map((project, index) => {
             const currentTab = activeTabPerProject[project.id] || "impact";
+            const isCardVisible = !cardsMaterialized || cardsMaterialized[index] !== false;
 
             return (
               <motion.article
                 key={project.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group rounded-3xl border border-[#e5e7eb] bg-white p-6 sm:p-9 hover:border-[#111111] hover:shadow-xl transition-all duration-300"
+                initial={{ opacity: 0, y: 30, scale: 0.96 }}
+                animate={{
+                  opacity: isCardVisible ? 1 : 0,
+                  y: isCardVisible ? 0 : 30,
+                  scale: isCardVisible ? 1 : 0.96,
+                }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
+                className={`group rounded-3xl border border-[#e5e7eb] bg-white p-6 sm:p-9 hover:border-[#111111] hover:shadow-xl transition-all duration-300 ${
+                  !isCardVisible ? "pointer-events-none" : ""
+                }`}
               >
                 {/* Top Meta Bar */}
                 <div className="flex flex-wrap items-center justify-between gap-3 pb-6 border-b border-neutral-100 mb-6">

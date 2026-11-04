@@ -59,9 +59,9 @@ export function AgentFleet({ members, isStandby, windowWidth }: AgentFleetProps)
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
       {/* 10 Squad Cursors */}
       {members.map((member, index) => {
-        // If standby, smoothly dock in the top-right header formation
+        // If standby, smoothly dock in the top-right header formation (fixed right-6 top-4)
         const targetX = isStandby
-          ? Math.max(80, windowWidth - 450 + (index % 5) * 64)
+          ? Math.max(20, windowWidth - 340 + (index % 5) * 60)
           : member.x;
         const targetY = isStandby
           ? 14 + Math.floor(index / 5) * 26
@@ -146,8 +146,8 @@ export function AgentFleet({ members, isStandby, windowWidth }: AgentFleetProps)
             exit={{ opacity: 0, y: -16, scale: 0.92 }}
             transition={{ duration: 0.4, delay: 0.2 }}
             style={{
-              left: Math.max(20, windowWidth - 470),
-              top: 68,
+              right: 24,
+              top: 72,
             }}
             className="fixed z-50 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#111111]/95 text-white border border-neutral-700/80 shadow-2xl backdrop-blur-md text-[11px] font-mono"
           >
