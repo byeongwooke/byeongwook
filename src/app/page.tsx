@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BlueprintCanvas } from "@/components/canvas/BlueprintCanvas";
+import { WireframeStage } from "@/components/canvas/WireframeStage";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { PhilosophySection } from "@/components/PhilosophySection";
@@ -29,8 +29,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] selection:bg-[#111111] selection:text-white relative">
-      {/* 1. Step 01: The Blueprint Canvas */}
-      <BlueprintCanvas />
+      {/* 1. Step 02: 1.5s Loading Buffer + Hero Wireframe Drafting Stage */}
+      <WireframeStage />
 
       {/* 2. Standby Content (Kept waiting for subsequent build steps) */}
       <div className="opacity-0 pointer-events-none select-none" aria-hidden="true">
