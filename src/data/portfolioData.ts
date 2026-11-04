@@ -11,7 +11,7 @@ export const PROFILE_DATA = {
   nameEn: "Byeongwook Yoo",
   role: "서비스 기획자 / 프로덕트 매니저 (Mini-CEO)",
   englishTitle: "Product Owner & Mini-CEO",
-  headlineMain: "비즈니스의 구조를 세우고,",
+  headlineMain: "비즈니스의 구조를 설계하고,",
   headlineSub: "사람의 온도를 더합니다.",
   subCopy:
     "카카오모빌리티와 B2B 플랫폼에서 신사업 론칭과 물류 인프라를 설계해 온 기획자 유병욱입니다. 비즈니스 가설부터 실행, P&L 최적화까지 오너십을 갖고 완수합니다.",
