@@ -12,14 +12,14 @@ import { Footer } from "@/components/Footer";
 import { ProjectModal } from "@/components/ProjectModal";
 import { ResumeModal } from "@/components/ResumeModal";
 import { Toast } from "@/components/Toast";
-import { CinematicBuilder, CinematicStep } from "@/components/canvas/CinematicBuilder";
+import { CinematicBuilder, CinematicPhase } from "@/components/canvas/CinematicBuilder";
 import { ProjectItem } from "@/types/portfolio";
 
 export default function Home() {
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [resumeOpen, setResumeOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [buildStep, setBuildStep] = useState<CinematicStep>(0);
+  const [currentPhase, setCurrentPhase] = useState<CinematicPhase>(1);
 
   const handleCopyText = (_text: string, label: string) => {
     setToastMessage(`${label}가 클립보드에 복사되었습니다.`);
@@ -30,68 +30,68 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-[#111111] selection:bg-[#111111] selection:text-white relative">
-      {/* 1. Cinematic Auto-Builder Orchestrator & 10 AI Agent Fleet */}
+      {/* 1. 10인의 스쿼드 라이브 오케스트레이션 캔버스 엔진 */}
       <CinematicBuilder
-        onStepChange={(step) => setBuildStep(step)}
-        onComplete={() => setBuildStep(5)}
+        onPhaseChange={(phase) => setCurrentPhase(phase)}
+        onComplete={() => setCurrentPhase(5)}
       />
 
       {/* 2. Sticky Navigation */}
       <Navbar onOpenResume={() => setResumeOpen(true)} />
 
-      {/* 3. Main Single Page Sections with Live Materialization Transitions */}
+      {/* 3. Main Single Page Sections */}
       <main className="relative z-10">
-        {/* Step 0: Hero Section */}
+        {/* Hero Section */}
         <div
           className={`transition-all duration-700 ease-out will-change-transform ${
-            buildStep >= 0
+            currentPhase >= 3
               ? "opacity-100 blur-0 translate-y-0"
-              : "opacity-20 blur-[2px] translate-y-2"
+              : "opacity-40 blur-[1.5px] translate-y-2"
           }`}
         >
           <HeroSection onOpenResume={() => setResumeOpen(true)} />
         </div>
 
-        {/* Step 1: Philosophy Section */}
+        {/* Philosophy Section */}
         <div
           className={`transition-all duration-700 ease-out will-change-transform ${
-            buildStep >= 1
+            currentPhase >= 3
               ? "opacity-100 blur-0 translate-y-0"
-              : "opacity-25 blur-[2px] translate-y-3"
+              : "opacity-40 blur-[1.5px] translate-y-2"
           }`}
         >
           <PhilosophySection />
         </div>
 
-        {/* Step 2: Featured Projects */}
+        {/* Featured Projects */}
         <div
           className={`transition-all duration-700 ease-out will-change-transform ${
-            buildStep >= 2
+            currentPhase >= 3
               ? "opacity-100 blur-0 translate-y-0"
-              : "opacity-25 blur-[2px] translate-y-3"
+              : "opacity-40 blur-[1.5px] translate-y-2"
           }`}
         >
           <ProjectsSection onSelectProject={(p) => setSelectedProject(p)} />
         </div>
 
-        {/* Step 3: Capabilities & Technical Fluency */}
+        {/* Capabilities & Experience */}
         <div
           className={`transition-all duration-700 ease-out will-change-transform ${
-            buildStep >= 3
+            currentPhase >= 4
               ? "opacity-100 blur-0 translate-y-0"
-              : "opacity-25 blur-[2px] translate-y-3"
+              : "opacity-50 blur-[1px] translate-y-2"
           }`}
         >
           <CapabilitiesSection />
           <ExperienceTimeline />
         </div>
 
-        {/* Step 4: Contact & Footer */}
+        {/* Contact & Footer */}
         <div
           className={`transition-all duration-700 ease-out will-change-transform ${
-            buildStep >= 4
+            currentPhase >= 4
               ? "opacity-100 blur-0 translate-y-0"
-              : "opacity-25 blur-[2px] translate-y-3"
+              : "opacity-50 blur-[1px] translate-y-2"
           }`}
         >
           <ContactSection onCopyText={handleCopyText} />
